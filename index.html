@@ -13,85 +13,96 @@
         background:radial-gradient(120% 80% at 50% 0%, #14213a 0%, var(--bg) 60%);
         display:flex; flex-direction:column; min-height:100dvh; overflow:hidden }
 
-  /* ---------- setup ---------- */
-  #setup{ margin:auto; padding:30px 26px; width:min(92vw,420px); text-align:center;
+  #setup{ margin:auto; padding:28px 24px; width:min(92vw,430px); text-align:center;
           background:#131f33ee; border:1px solid #2a3a55; border-radius:22px; box-shadow:0 20px 60px #0008 }
-  #setup h1{ font-size:30px; margin:0 0 4px } #setup p{ color:#9fb0cc; font-size:14px; line-height:1.5 }
+  #setup h1{ font-size:30px; margin:0 0 4px } #setup p{ color:#9fb0cc; font-size:13.5px; line-height:1.5 }
   select,button{ font-family:inherit; border:none; border-radius:14px; font-weight:bold; cursor:pointer }
-  #setup select{ width:100%; font-size:16px; padding:14px; background:#1b2942; color:#eaf0fb; margin:14px 0; border:1px solid #34507a }
-  .primary{ background:linear-gradient(#34a0ff,#2160d8); color:#fff; font-size:18px; padding:15px 34px; box-shadow:0 8px 24px #2160d877 }
+  #setup select{ width:100%; font-size:16px; padding:13px; background:#1b2942; color:#eaf0fb; margin:8px 0; border:1px solid #34507a }
+  .primary{ background:linear-gradient(#34a0ff,#2160d8); color:#fff; font-size:18px; padding:15px 34px; box-shadow:0 8px 24px #2160d877; margin-top:8px }
   .primary:active{ transform:translateY(2px) }
 
-  /* ---------- header ---------- */
-  #mesa{ display:none; flex:1; flex-direction:column; width:min(100vw,520px); margin:0 auto; padding:6px 10px }
-  .hud{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 2px }
-  .modo{ font-size:12px; color:#83e0bd; font-weight:bold; letter-spacing:.4px }
-  .score{ display:flex; gap:14px; align-items:center }
-  .tentos{ display:flex; flex-direction:column; align-items:center; gap:1px; min-width:60px }
-  .tentos b{ font-size:12px } .tentos .n{ font-size:11px; opacity:.7 }
-  .rounds{ display:flex; gap:5px; align-items:center }
-  .dot{ width:13px; height:13px; border-radius:50%; border:2px solid #41557a }
+  #mesa{ display:none; flex:1; flex-direction:column; width:min(100vw,540px); margin:0 auto; padding:6px 8px }
+  .hud{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:5px 4px }
+  .modo{ font-size:12px; color:#83e0bd; font-weight:bold }
+  .score{ display:flex; gap:12px; align-items:center }
+  .tentos{ display:flex; flex-direction:column; align-items:center; gap:1px; min-width:58px }
+  .tentos b{ font-size:11px } .tentos .n{ font-size:10px; opacity:.65 }
+  .rounds{ display:flex; gap:5px } .dot{ width:12px; height:12px; border-radius:50%; border:2px solid #41557a }
   .dot.A{ background:var(--A); border-color:var(--A) } .dot.B{ background:var(--B); border-color:var(--B) }
   .dot.E{ background:#7b8aa6; border-color:#7b8aa6 }
 
-  /* ---------- players ---------- */
-  .seat{ display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; padding:4px 0 }
-  .avatar{ width:62px; height:62px; border-radius:50%; background:#23314e; display:flex; align-items:center;
-           justify-content:center; font-size:30px; border:3px solid #3a4a6a; transition:.2s }
-  .seat.turn .avatar{ border-color:#ffd24a; box-shadow:0 0 0 4px #ffd24a44, 0 0 18px #ffd24a88 }
-  .nome{ font-size:13px; font-weight:bold } .nome .b{ color:#9fb0cc; font-weight:normal; font-size:11px }
-  .bubble{ position:absolute; top:-6px; background:#fff; color:#1a1f2a; font-weight:bold; font-size:14px;
-           padding:6px 12px; border-radius:14px; white-space:nowrap; box-shadow:0 4px 14px #0006; z-index:5;
-           opacity:0; transform:scale(.6); transition:.18s; pointer-events:none }
+  .arena{ flex:1; display:grid; grid-template-columns:62px 1fr 62px; grid-template-rows:auto 1fr auto;
+          gap:3px; align-items:center; min-height:0 }
+  .arena.solo{ grid-template-columns:0 1fr 0 }
+  .seat{ display:flex; flex-direction:column; align-items:center; gap:3px; position:relative }
+  .seat-top{ grid-area:1/2 } .seat-bottom{ grid-area:3/2 } .seat-left{ grid-area:2/1 } .seat-right{ grid-area:2/3 }
+  .seat.hide{ display:none }
+  .avatar{ width:52px; height:52px; border-radius:50%; background:#23314e; display:flex; align-items:center;
+           justify-content:center; font-size:25px; border:3px solid #3a4a6a; transition:.2s; flex:0 0 auto }
+  .seat.A .avatar{ border-color:#3a5a8a } .seat.B .avatar{ border-color:#8a4a44 }
+  .seat.turn .avatar{ border-color:#ffd24a !important; box-shadow:0 0 0 4px #ffd24a44,0 0 16px #ffd24a99 }
+  .nome{ font-size:11px; font-weight:bold; text-align:center; line-height:1.1 }
+  .nome small{ color:#90a0bd; font-weight:normal; font-size:9px }
+  .minis{ display:flex; gap:2px } .mini{ width:13px; height:19px; border-radius:3px;
+          background:repeating-linear-gradient(45deg,#274088,#274088 4px,#33509f 4px,#33509f 8px); border:1px solid #5a78be }
+  .seat-left .minis,.seat-right .minis{ flex-direction:row }
+  .bubble{ position:absolute; background:#fff; color:#1a1f2a; font-weight:bold; font-size:13px; padding:5px 11px;
+           border-radius:13px; white-space:nowrap; box-shadow:0 4px 14px #0006; z-index:6; opacity:0; transform:scale(.6);
+           transition:.16s; pointer-events:none; top:0 }
   .bubble.show{ opacity:1; transform:scale(1) }
-  .bubble.A{ left:64px } .bubble.B{ right:64px }
   .bubble.truco{ background:#ffd24a } .bubble.sim{ background:#7bdca0 } .bubble.nao{ background:#ff8a7a; color:#fff }
 
-  /* ---------- felt ---------- */
-  .felt{ position:relative; flex:1; min-height:230px; margin:4px 0;
+  .felt{ grid-area:2/2; position:relative; height:100%; min-height:200px;
          background:radial-gradient(115% 80% at 50% 45%, var(--felt1), var(--felt2));
-         border:6px solid var(--gold); border-radius:26px; box-shadow:inset 0 0 40px #0005, 0 10px 30px #0007;
-         display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px }
-  .vira{ position:absolute; top:8px; right:10px; text-align:center; transform:scale(.78); transform-origin:top right }
-  .vira small{ display:block; font-size:11px; color:#eaf3ee; margin-top:2px }
-  .manilha{ position:absolute; top:12px; left:14px; font-size:12px; color:#ffe9a8; font-weight:bold }
-  .slot{ display:flex; gap:10px; min-height:96px; align-items:center; justify-content:center }
-  .flash{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:13px;
-          background:#0b1320cc; padding:5px 14px; border-radius:12px; min-height:0 }
+         border:6px solid var(--gold); border-radius:24px; box-shadow:inset 0 0 40px #0005,0 10px 30px #0007 }
+  .vira{ position:absolute; top:7px; right:9px; text-align:center; transform:scale(.72); transform-origin:top right }
+  .vira small{ display:block; font-size:11px; color:#eaf3ee }
+  .manilha{ position:absolute; top:10px; left:12px; font-size:11px; color:#ffe9a8; font-weight:bold }
+  .pcard{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) }
+  .pcard.bottom{ top:auto; bottom:8px } .pcard.top{ top:8px; bottom:auto }
+  .pcard.left{ left:14px } .pcard.right{ left:auto; right:14px }
+  .flash{ position:absolute; bottom:6px; left:50%; transform:translateX(-50%); font-size:12.5px;
+          background:#0b1320d0; padding:4px 12px; border-radius:11px }
 
-  /* ---------- cards ---------- */
-  .card{ width:64px; height:92px; border-radius:9px; background:var(--card); color:var(--ink);
+  .card{ width:58px; height:84px; border-radius:8px; background:var(--card); color:var(--ink);
          position:relative; flex:0 0 auto; box-shadow:0 3px 8px #0006 }
-  .card .tl,.card .br{ position:absolute; font-weight:bold; line-height:.9; text-align:center }
-  .card .tl{ top:5px; left:6px; font-size:16px } .card .br{ bottom:5px; right:6px; font-size:16px; transform:rotate(180deg) }
-  .card .big{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:32px }
+  .card.sm{ width:46px; height:67px }
+  .card .tl,.card .br{ position:absolute; font-weight:bold; line-height:.85; text-align:center; font-size:14px }
+  .card .tl{ top:4px; left:5px } .card .br{ bottom:4px; right:5px; transform:rotate(180deg) }
+  .card .big{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:28px }
   .card.red{ color:#d8323e }
-  .card.manilha{ box-shadow:0 0 0 3px var(--gold), 0 0 14px #ffcf6f }
+  .card.manilha{ box-shadow:0 0 0 3px var(--gold),0 0 14px #ffcf6f }
   .card.back{ background:repeating-linear-gradient(45deg,#274088,#274088 7px,#33509f 7px,#33509f 14px); border:2px solid #5a78be }
-  .deal-bottom{ animation:db .26s ease-out } .deal-top{ animation:dt .26s ease-out }
-  @keyframes db{ from{ transform:translateY(120px) scale(.8); opacity:.2 } }
-  @keyframes dt{ from{ transform:translateY(-120px) scale(.8); opacity:.2 } }
+  .deal-bottom{ animation:db .24s ease-out } .deal-top{ animation:dt .24s ease-out }
+  .deal-left{ animation:dl .24s ease-out } .deal-right{ animation:dr .24s ease-out }
+  @keyframes db{ from{ transform:translate(-50%,40px) scale(.8); opacity:.2 } }
+  @keyframes dt{ from{ transform:translate(-50%,-40px) scale(.8); opacity:.2 } }
+  @keyframes dl{ from{ transform:translate(-90%,-50%) scale(.8); opacity:.2 } }
+  @keyframes dr{ from{ transform:translate(-10%,-50%) scale(.8); opacity:.2 } }
 
-  .hand{ display:flex; gap:9px; justify-content:center; padding:6px 0 2px }
+  .hand{ display:flex; gap:8px; justify-content:center; padding:8px 0 2px }
   .hand.mine .card{ cursor:pointer; transition:transform .14s }
   .hand.mine .card.ok:hover,.hand.mine .card.ok:active{ transform:translateY(-12px) }
   .hand.mine .card:not(.ok){ filter:brightness(.78) }
 
-  /* ---------- controls ---------- */
-  #controls{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:8px 6px 12px; min-height:58px }
-  #controls button{ font-size:15px; padding:13px 18px; color:#fff; box-shadow:0 4px 12px #0005 }
+  #controls{ display:flex; flex-wrap:wrap; gap:7px; justify-content:center; padding:6px 6px 12px; min-height:54px }
+  #controls button{ font-size:14.5px; padding:12px 16px; color:#fff; box-shadow:0 4px 12px #0005 }
   .b-truco{ background:linear-gradient(#ffce4a,#e9a81b); color:#3a2c00 } .b-sub{ background:#5340a8 }
-  .b-flor{ background:#9b3a87 } .b-yes{ background:#1f9a57 } .b-no{ background:#c0463a } .b-ghost{ background:#2a3a57 }
+  .b-flor{ background:#9b3a87 } .b-yes{ background:#1f9a57 } .b-no{ background:#c0463a }
 
   #fim{ display:none; position:fixed; inset:0; z-index:20; background:#060a12ee;
-        flex-direction:column; align-items:center; justify-content:center; gap:20px; text-align:center }
-  #fim h2{ font-size:40px; margin:0 }
+        flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center }
+  #fim h2{ font-size:36px; margin:0 }
 </style>
 </head>
 <body>
   <div id="setup">
     <h1>🃏 Mesa de Truco</h1>
-    <p>1 contra 1 com o bot. Toque numa carta pra jogar. Peça <b>Truco</b>; no Gaúcho, cante <b>Envido/Flor</b> antes da 1ª carta.</p>
+    <p>Toque numa carta pra jogar. Peça <b>Truco</b>; no Gaúcho cante <b>Envido/Flor</b> antes da 1ª carta.</p>
+    <select id="msel">
+      <option value="2">2x2 · você + parceiro vs 2 bots</option>
+      <option value="1">1x1 · você vs bot</option>
+    </select>
     <select id="rsel">
       <option value="PADRAO">Truco Padrão · manilha fixa</option>
       <option value="GAUCHO">Truco Gaúcho · vira + envido/flor</option>
@@ -103,34 +114,29 @@
     <div class="hud">
       <span class="modo" id="modo"></span>
       <div class="score">
-        <div class="tentos"><b style="color:var(--B)">Bot</b><span id="tB"></span><span class="n" id="nB">0</span></div>
+        <div class="tentos"><b style="color:var(--B)" id="lbB">Eles</b><span id="tB"></span><span class="n" id="nB">0</span></div>
         <div class="rounds" id="rounds"></div>
-        <div class="tentos"><b style="color:var(--A)">Você</b><span id="tA"></span><span class="n" id="nA">0</span></div>
+        <div class="tentos"><b style="color:var(--A)" id="lbA">Vocês</b><span id="tA"></span><span class="n" id="nA">0</span></div>
       </div>
     </div>
 
-    <div class="seat" id="seatBot">
-      <div class="bubble B" id="bubBot"></div>
-      <div class="avatar">🤖</div>
-      <div class="nome">Bot <span class="b">· dupla B</span></div>
-      <div class="hand" id="botHand"></div>
+    <div class="arena" id="arena">
+      <div class="seat seat-top" id="st"><div class="bubble" id="bt"></div><div class="avatar"></div><div class="nome"></div><div class="minis"></div></div>
+      <div class="seat seat-left" id="sl"><div class="bubble" id="bl"></div><div class="avatar"></div><div class="nome"></div><div class="minis"></div></div>
+      <div class="seat seat-right" id="sr"><div class="bubble" id="br"></div><div class="avatar"></div><div class="nome"></div><div class="minis"></div></div>
+      <div class="felt">
+        <div class="vira" id="viraBox"></div>
+        <div class="manilha" id="manilhaBox"></div>
+        <div class="pcard top" id="pc-top"></div>
+        <div class="pcard bottom" id="pc-bottom"></div>
+        <div class="pcard left" id="pc-left"></div>
+        <div class="pcard right" id="pc-right"></div>
+        <div class="flash" id="flash"></div>
+      </div>
+      <div class="seat seat-bottom A" id="sb"><div class="bubble" id="bb"></div><div class="avatar" style="border-color:var(--A)">🧑</div><div class="nome"></div></div>
     </div>
 
-    <div class="felt">
-      <div class="vira" id="viraBox"></div>
-      <div class="manilha" id="manilhaBox"></div>
-      <div class="slot" id="slotBot"></div>
-      <div class="slot" id="slotEu"></div>
-      <div class="flash" id="flash"></div>
-    </div>
-
-    <div class="seat" id="seatEu">
-      <div class="bubble A" id="bubEu"></div>
-      <div class="hand mine" id="myHand"></div>
-      <div class="avatar" style="border-color:var(--A)">🧑</div>
-      <div class="nome">Você <span class="b">· dupla A</span></div>
-    </div>
-
+    <div class="hand mine" id="myHand"></div>
     <div id="controls"></div>
   </div>
 
