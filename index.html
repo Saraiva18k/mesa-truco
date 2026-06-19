@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Mesa de Truco</title>
+<style>
+  :root{ --A:#60a5fa; --B:#f47264; --felt:#1c6e46; --gold:#b48c46; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; font-family:'DejaVu Sans',system-ui,Arial,sans-serif; color:#eaf0fb;
+        background:linear-gradient(#0b111a,#10131f); min-height:100vh; }
+  h1{ font-size:22px; margin:0; letter-spacing:.5px }
+  #setup{ max-width:420px; margin:14vh auto; padding:28px; text-align:center;
+          background:#131f33; border:1px solid #2a3a55; border-radius:18px }
+  #setup p{ color:#9fb0cc; font-size:14px }
+  select,button{ font-family:inherit; font-size:16px; border-radius:12px; border:1px solid #34507a;
+                 background:#1b2942; color:#eaf0fb; padding:12px 16px; margin:6px }
+  button{ cursor:pointer; font-weight:bold }
+  button.primary{ background:linear-gradient(#2d6df6,#2456c8); border:none; padding:14px 28px }
+  button:active{ transform:translateY(1px) }
+  button:disabled{ opacity:.35; cursor:default }
+
+  #mesa{ display:none; max-width:760px; margin:0 auto; padding:8px 10px 130px }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:8px 4px }
+  .placar{ font-size:26px; font-weight:bold }
+  .placar .a{ color:var(--A) } .placar .b{ color:var(--B) }
+  .modo{ color:#7fd4b4; font-size:13px }
+
+  .pod{ display:flex; align-items:center; gap:10px; padding:6px 0 }
+  .pod.bot{ justify-content:center }
+  .cam{ width:70px; height:54px; border-radius:10px; background:#18243a; border:2px solid var(--B);
+        display:flex; align-items:center; justify-content:center; font-size:24px }
+  .pod .nome{ font-weight:bold }
+  .badge{ font-size:12px; padding:2px 7px; border-radius:8px; background:#22324d }
+
+  .feltro{ position:relative; background:radial-gradient(circle at 50% 40%, #24875a, var(--felt));
+           border:7px solid var(--gold); border-radius:50%/38%; height:230px; margin:8px 0;
+           display:flex; align-items:center; justify-content:center; gap:6px }
+  .vira{ position:absolute; top:-14px; right:14px; text-align:center }
+  .vira small{ display:block; color:#dfe6f2; font-size:11px }
+  .manilha{ position:absolute; left:14px; bottom:10px; color:#f5ebb4; font-size:13px }
+  .msg{ position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+        background:#0e1726cc; padding:4px 12px; border-radius:10px; font-size:13px; white-space:nowrap }
+
+  .card{ width:62px; height:90px; border-radius:9px; background:#f7f7fb; color:#181c24;
+         border:2px solid #c8ccd6; position:relative; flex:0 0 auto; transition:transform .12s }
+  .card .v{ position:absolute; top:3px; left:6px; font-weight:bold; font-size:20px }
+  .card .s{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px }
+  .card.red{ color:#d03038 } .card.tag{ box-shadow:0 0 0 3px #f5c542 }
+  .card.back{ background:repeating-linear-gradient(45deg,#2c4078,#2c4078 6px,#36509a 6px,#36509a 12px);
+              border-color:#5a78be }
+  .hand{ display:flex; gap:8px; justify-content:center; margin-top:10px }
+  .hand.mine .card{ cursor:pointer }
+  .hand.mine .card:hover{ transform:translateY(-10px) }
+  .hand.mine .card.disabled{ cursor:default; opacity:.6 }
+  .hand.mine .card.disabled:hover{ transform:none }
+
+  #controls{ position:fixed; left:0; right:0; bottom:0; padding:10px; display:flex;
+             flex-wrap:wrap; gap:8px; justify-content:center; background:#0c1320ee; border-top:1px solid #22324d }
+  #controls button{ margin:0; padding:11px 16px; font-size:15px }
+  .b-truco{ background:linear-gradient(#f5c542,#e0a91a); color:#3a2e00; border:none }
+  .b-sub{ background:#3a2d6e }
+  .b-flor{ background:#7a2d6e }
+  .b-yes{ background:#1f7a4a } .b-no{ background:#7a2f2f }
+
+  #fim{ display:none; position:fixed; inset:0; background:#070b12e8; z-index:9;
+        flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center }
+  #fim h2{ font-size:34px; margin:0 }
+</style>
+</head>
+<body>
+  <div id="setup">
+    <h1>🃏 Mesa de Truco</h1>
+    <p>Jogue 1 contra 1 com o bot. Clique numa carta pra jogar; peça truco; no gaúcho, cante envido/flor antes da 1ª carta.</p>
+    <div>
+      <select id="rsel">
+        <option value="PADRAO">Truco Padrão (manilha fixa)</option>
+        <option value="GAUCHO">Truco Gaúcho (vira + envido/flor)</option>
+      </select>
+    </div>
+    <button class="primary" onclick="iniciar()">Jogar ▶</button>
+  </div>
+
+  <div id="mesa">
+    <div class="topbar">
+      <span class="modo" id="modo"></span>
+      <span class="placar"><span class="a" id="pa">0</span> x <span class="b" id="pb">0</span></span>
+    </div>
+    <div class="pod bot"><div class="cam">🙂</div><span class="nome">Bot</span><span class="badge">B</span>
+      <div class="hand" id="botHand"></div></div>
+    <div class="feltro" id="feltro">
+      <div class="vira" id="viraBox"></div>
+      <div class="manilha" id="manilhaBox"></div>
+      <div id="mesaCards" style="display:flex;gap:6px"></div>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="pod"><div class="cam" style="border-color:var(--A)">🙂</div><span class="nome">Você</span><span class="badge">A</span></div>
+    <div class="hand mine" id="myHand"></div>
+  </div>
+
+  <div id="controls"></div>
+  <div id="fim"><h2 id="fimTxt"></h2><button class="primary" onclick="location.reload()">Jogar de novo</button></div>
+
+<script src="engine.bundle.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
