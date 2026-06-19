@@ -2,103 +2,138 @@
 <html lang="pt-br">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Mesa de Truco</title>
 <style>
-  :root{ --A:#60a5fa; --B:#f47264; --felt:#1c6e46; --gold:#b48c46; }
-  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body{ margin:0; font-family:'DejaVu Sans',system-ui,Arial,sans-serif; color:#eaf0fb;
-        background:linear-gradient(#0b111a,#10131f); min-height:100vh; }
-  h1{ font-size:22px; margin:0; letter-spacing:.5px }
-  #setup{ max-width:420px; margin:14vh auto; padding:28px; text-align:center;
-          background:#131f33; border:1px solid #2a3a55; border-radius:18px }
-  #setup p{ color:#9fb0cc; font-size:14px }
-  select,button{ font-family:inherit; font-size:16px; border-radius:12px; border:1px solid #34507a;
-                 background:#1b2942; color:#eaf0fb; padding:12px 16px; margin:6px }
-  button{ cursor:pointer; font-weight:bold }
-  button.primary{ background:linear-gradient(#2d6df6,#2456c8); border:none; padding:14px 28px }
-  button:active{ transform:translateY(1px) }
-  button:disabled{ opacity:.35; cursor:default }
+  :root{ --A:#4da3ff; --B:#ff6f5e; --bg:#0a1019; --felt1:#1f8055; --felt2:#155c3c;
+         --gold:#d8a84a; --card:#f6f7fb; --ink:#1a1f2a; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none }
+  html,body{ margin:0; height:100% }
+  body{ font-family:'DejaVu Sans',system-ui,Arial,sans-serif; color:#eef3fb;
+        background:radial-gradient(120% 80% at 50% 0%, #14213a 0%, var(--bg) 60%);
+        display:flex; flex-direction:column; min-height:100dvh; overflow:hidden }
 
-  #mesa{ display:none; max-width:760px; margin:0 auto; padding:8px 10px 130px }
-  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:8px 4px }
-  .placar{ font-size:26px; font-weight:bold }
-  .placar .a{ color:var(--A) } .placar .b{ color:var(--B) }
-  .modo{ color:#7fd4b4; font-size:13px }
+  /* ---------- setup ---------- */
+  #setup{ margin:auto; padding:30px 26px; width:min(92vw,420px); text-align:center;
+          background:#131f33ee; border:1px solid #2a3a55; border-radius:22px; box-shadow:0 20px 60px #0008 }
+  #setup h1{ font-size:30px; margin:0 0 4px } #setup p{ color:#9fb0cc; font-size:14px; line-height:1.5 }
+  select,button{ font-family:inherit; border:none; border-radius:14px; font-weight:bold; cursor:pointer }
+  #setup select{ width:100%; font-size:16px; padding:14px; background:#1b2942; color:#eaf0fb; margin:14px 0; border:1px solid #34507a }
+  .primary{ background:linear-gradient(#34a0ff,#2160d8); color:#fff; font-size:18px; padding:15px 34px; box-shadow:0 8px 24px #2160d877 }
+  .primary:active{ transform:translateY(2px) }
 
-  .pod{ display:flex; align-items:center; gap:10px; padding:6px 0 }
-  .pod.bot{ justify-content:center }
-  .cam{ width:70px; height:54px; border-radius:10px; background:#18243a; border:2px solid var(--B);
-        display:flex; align-items:center; justify-content:center; font-size:24px }
-  .pod .nome{ font-weight:bold }
-  .badge{ font-size:12px; padding:2px 7px; border-radius:8px; background:#22324d }
+  /* ---------- header ---------- */
+  #mesa{ display:none; flex:1; flex-direction:column; width:min(100vw,520px); margin:0 auto; padding:6px 10px }
+  .hud{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 2px }
+  .modo{ font-size:12px; color:#83e0bd; font-weight:bold; letter-spacing:.4px }
+  .score{ display:flex; gap:14px; align-items:center }
+  .tentos{ display:flex; flex-direction:column; align-items:center; gap:1px; min-width:60px }
+  .tentos b{ font-size:12px } .tentos .n{ font-size:11px; opacity:.7 }
+  .rounds{ display:flex; gap:5px; align-items:center }
+  .dot{ width:13px; height:13px; border-radius:50%; border:2px solid #41557a }
+  .dot.A{ background:var(--A); border-color:var(--A) } .dot.B{ background:var(--B); border-color:var(--B) }
+  .dot.E{ background:#7b8aa6; border-color:#7b8aa6 }
 
-  .feltro{ position:relative; background:radial-gradient(circle at 50% 40%, #24875a, var(--felt));
-           border:7px solid var(--gold); border-radius:50%/38%; height:230px; margin:8px 0;
-           display:flex; align-items:center; justify-content:center; gap:6px }
-  .vira{ position:absolute; top:-14px; right:14px; text-align:center }
-  .vira small{ display:block; color:#dfe6f2; font-size:11px }
-  .manilha{ position:absolute; left:14px; bottom:10px; color:#f5ebb4; font-size:13px }
-  .msg{ position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
-        background:#0e1726cc; padding:4px 12px; border-radius:10px; font-size:13px; white-space:nowrap }
+  /* ---------- players ---------- */
+  .seat{ display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; padding:4px 0 }
+  .avatar{ width:62px; height:62px; border-radius:50%; background:#23314e; display:flex; align-items:center;
+           justify-content:center; font-size:30px; border:3px solid #3a4a6a; transition:.2s }
+  .seat.turn .avatar{ border-color:#ffd24a; box-shadow:0 0 0 4px #ffd24a44, 0 0 18px #ffd24a88 }
+  .nome{ font-size:13px; font-weight:bold } .nome .b{ color:#9fb0cc; font-weight:normal; font-size:11px }
+  .bubble{ position:absolute; top:-6px; background:#fff; color:#1a1f2a; font-weight:bold; font-size:14px;
+           padding:6px 12px; border-radius:14px; white-space:nowrap; box-shadow:0 4px 14px #0006; z-index:5;
+           opacity:0; transform:scale(.6); transition:.18s; pointer-events:none }
+  .bubble.show{ opacity:1; transform:scale(1) }
+  .bubble.A{ left:64px } .bubble.B{ right:64px }
+  .bubble.truco{ background:#ffd24a } .bubble.sim{ background:#7bdca0 } .bubble.nao{ background:#ff8a7a; color:#fff }
 
-  .card{ width:62px; height:90px; border-radius:9px; background:#f7f7fb; color:#181c24;
-         border:2px solid #c8ccd6; position:relative; flex:0 0 auto; transition:transform .12s }
-  .card .v{ position:absolute; top:3px; left:6px; font-weight:bold; font-size:20px }
-  .card .s{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px }
-  .card.red{ color:#d03038 } .card.tag{ box-shadow:0 0 0 3px #f5c542 }
-  .card.back{ background:repeating-linear-gradient(45deg,#2c4078,#2c4078 6px,#36509a 6px,#36509a 12px);
-              border-color:#5a78be }
-  .hand{ display:flex; gap:8px; justify-content:center; margin-top:10px }
-  .hand.mine .card{ cursor:pointer }
-  .hand.mine .card:hover{ transform:translateY(-10px) }
-  .hand.mine .card.disabled{ cursor:default; opacity:.6 }
-  .hand.mine .card.disabled:hover{ transform:none }
+  /* ---------- felt ---------- */
+  .felt{ position:relative; flex:1; min-height:230px; margin:4px 0;
+         background:radial-gradient(115% 80% at 50% 45%, var(--felt1), var(--felt2));
+         border:6px solid var(--gold); border-radius:26px; box-shadow:inset 0 0 40px #0005, 0 10px 30px #0007;
+         display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px }
+  .vira{ position:absolute; top:8px; right:10px; text-align:center; transform:scale(.78); transform-origin:top right }
+  .vira small{ display:block; font-size:11px; color:#eaf3ee; margin-top:2px }
+  .manilha{ position:absolute; top:12px; left:14px; font-size:12px; color:#ffe9a8; font-weight:bold }
+  .slot{ display:flex; gap:10px; min-height:96px; align-items:center; justify-content:center }
+  .flash{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:13px;
+          background:#0b1320cc; padding:5px 14px; border-radius:12px; min-height:0 }
 
-  #controls{ position:fixed; left:0; right:0; bottom:0; padding:10px; display:flex;
-             flex-wrap:wrap; gap:8px; justify-content:center; background:#0c1320ee; border-top:1px solid #22324d }
-  #controls button{ margin:0; padding:11px 16px; font-size:15px }
-  .b-truco{ background:linear-gradient(#f5c542,#e0a91a); color:#3a2e00; border:none }
-  .b-sub{ background:#3a2d6e }
-  .b-flor{ background:#7a2d6e }
-  .b-yes{ background:#1f7a4a } .b-no{ background:#7a2f2f }
+  /* ---------- cards ---------- */
+  .card{ width:64px; height:92px; border-radius:9px; background:var(--card); color:var(--ink);
+         position:relative; flex:0 0 auto; box-shadow:0 3px 8px #0006 }
+  .card .tl,.card .br{ position:absolute; font-weight:bold; line-height:.9; text-align:center }
+  .card .tl{ top:5px; left:6px; font-size:16px } .card .br{ bottom:5px; right:6px; font-size:16px; transform:rotate(180deg) }
+  .card .big{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:32px }
+  .card.red{ color:#d8323e }
+  .card.manilha{ box-shadow:0 0 0 3px var(--gold), 0 0 14px #ffcf6f }
+  .card.back{ background:repeating-linear-gradient(45deg,#274088,#274088 7px,#33509f 7px,#33509f 14px); border:2px solid #5a78be }
+  .deal-bottom{ animation:db .26s ease-out } .deal-top{ animation:dt .26s ease-out }
+  @keyframes db{ from{ transform:translateY(120px) scale(.8); opacity:.2 } }
+  @keyframes dt{ from{ transform:translateY(-120px) scale(.8); opacity:.2 } }
 
-  #fim{ display:none; position:fixed; inset:0; background:#070b12e8; z-index:9;
-        flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center }
-  #fim h2{ font-size:34px; margin:0 }
+  .hand{ display:flex; gap:9px; justify-content:center; padding:6px 0 2px }
+  .hand.mine .card{ cursor:pointer; transition:transform .14s }
+  .hand.mine .card.ok:hover,.hand.mine .card.ok:active{ transform:translateY(-12px) }
+  .hand.mine .card:not(.ok){ filter:brightness(.78) }
+
+  /* ---------- controls ---------- */
+  #controls{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:8px 6px 12px; min-height:58px }
+  #controls button{ font-size:15px; padding:13px 18px; color:#fff; box-shadow:0 4px 12px #0005 }
+  .b-truco{ background:linear-gradient(#ffce4a,#e9a81b); color:#3a2c00 } .b-sub{ background:#5340a8 }
+  .b-flor{ background:#9b3a87 } .b-yes{ background:#1f9a57 } .b-no{ background:#c0463a } .b-ghost{ background:#2a3a57 }
+
+  #fim{ display:none; position:fixed; inset:0; z-index:20; background:#060a12ee;
+        flex-direction:column; align-items:center; justify-content:center; gap:20px; text-align:center }
+  #fim h2{ font-size:40px; margin:0 }
 </style>
 </head>
 <body>
   <div id="setup">
     <h1>🃏 Mesa de Truco</h1>
-    <p>Jogue 1 contra 1 com o bot. Clique numa carta pra jogar; peça truco; no gaúcho, cante envido/flor antes da 1ª carta.</p>
-    <div>
-      <select id="rsel">
-        <option value="PADRAO">Truco Padrão (manilha fixa)</option>
-        <option value="GAUCHO">Truco Gaúcho (vira + envido/flor)</option>
-      </select>
-    </div>
+    <p>1 contra 1 com o bot. Toque numa carta pra jogar. Peça <b>Truco</b>; no Gaúcho, cante <b>Envido/Flor</b> antes da 1ª carta.</p>
+    <select id="rsel">
+      <option value="PADRAO">Truco Padrão · manilha fixa</option>
+      <option value="GAUCHO">Truco Gaúcho · vira + envido/flor</option>
+    </select>
     <button class="primary" onclick="iniciar()">Jogar ▶</button>
   </div>
 
   <div id="mesa">
-    <div class="topbar">
+    <div class="hud">
       <span class="modo" id="modo"></span>
-      <span class="placar"><span class="a" id="pa">0</span> x <span class="b" id="pb">0</span></span>
+      <div class="score">
+        <div class="tentos"><b style="color:var(--B)">Bot</b><span id="tB"></span><span class="n" id="nB">0</span></div>
+        <div class="rounds" id="rounds"></div>
+        <div class="tentos"><b style="color:var(--A)">Você</b><span id="tA"></span><span class="n" id="nA">0</span></div>
+      </div>
     </div>
-    <div class="pod bot"><div class="cam">🙂</div><span class="nome">Bot</span><span class="badge">B</span>
-      <div class="hand" id="botHand"></div></div>
-    <div class="feltro" id="feltro">
+
+    <div class="seat" id="seatBot">
+      <div class="bubble B" id="bubBot"></div>
+      <div class="avatar">🤖</div>
+      <div class="nome">Bot <span class="b">· dupla B</span></div>
+      <div class="hand" id="botHand"></div>
+    </div>
+
+    <div class="felt">
       <div class="vira" id="viraBox"></div>
       <div class="manilha" id="manilhaBox"></div>
-      <div id="mesaCards" style="display:flex;gap:6px"></div>
-      <div class="msg" id="msg"></div>
+      <div class="slot" id="slotBot"></div>
+      <div class="slot" id="slotEu"></div>
+      <div class="flash" id="flash"></div>
     </div>
-    <div class="pod"><div class="cam" style="border-color:var(--A)">🙂</div><span class="nome">Você</span><span class="badge">A</span></div>
-    <div class="hand mine" id="myHand"></div>
+
+    <div class="seat" id="seatEu">
+      <div class="bubble A" id="bubEu"></div>
+      <div class="hand mine" id="myHand"></div>
+      <div class="avatar" style="border-color:var(--A)">🧑</div>
+      <div class="nome">Você <span class="b">· dupla A</span></div>
+    </div>
+
+    <div id="controls"></div>
   </div>
 
-  <div id="controls"></div>
   <div id="fim"><h2 id="fimTxt"></h2><button class="primary" onclick="location.reload()">Jogar de novo</button></div>
 
 <script src="engine.bundle.js"></script>
